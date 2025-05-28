@@ -74,7 +74,7 @@ popularidade = df_long["Artistas"].value_counts().to_dict()
 pos = nx.spring_layout(Grafo, seed=42, k=1.2)
 
 
-tamanho_no = [600 if node in pessoas else 200 + popularidade.get(node, 1) * 100 for node in G.nodes()]
+tamanho_no = [600 if node in pessoas else 200 + popularidade.get(node, 1) * 100 for node in Grafo.nodes()]
 
 
 cor_arestas = []
@@ -83,19 +83,19 @@ for u, v in Grafo.edges():
     artista = v if v in popularidade else u
     pop = popularidade.get(artista, 1)
     if pop >= 5:
-        edge_colors.append("red")
+        cor_arestas.append("red")
     elif pop >= 3:
-        edge_colors.append("orange")
+        cor_arestas.append("orange")
     else:
-        edge_colors.append("gray")
+        cor_arestas.append("gray")
 
 # Define o tamanho da figura
 plt.figure(figsize=(20, 14))
 #Desenho dos nós
 nx.draw_networkx_nodes(Grafo, pos, nodelist=pessoas, node_color='skyblue', node_size=700, label='Pessoas')
-nx.draw_networkx_nodes(Grafo, pos, nodelist=artistas,node_color='lightgreen', node_size=[tamanho_no[list(G.nodes()).index(n)] for n in artistas], label='Artistas')
+nx.draw_networkx_nodes(Grafo, pos, nodelist=artistas,node_color='lightgreen', node_size=[tamanho_no[list(Grafo.nodes()).index(n)] for n in artistas], label='Artistas')
 #Desenho das arestas
-nx.draw_networkx_edges(Grafo, pos, edge_color=edge_colors)
+nx.draw_networkx_edges(Grafo, pos, edge_color=cor_arestas)
 #fonte dos nós
 nx.draw_networkx_labels(Grafo, pos, font_size=10)
 
