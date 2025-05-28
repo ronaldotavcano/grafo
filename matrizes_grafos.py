@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
-import networkx as nx
-import pandas as pd
+import matplotlib.pyplot as plt #Visualização do grafo
+import networkx as nx # Criação do grafo
+import pandas as pd # leitura e organização dos dados
 
 matriz_artistas = [
     ["Rafael Generoso Ponzetto", "Mili", "Charlie Brown", "AC/DC", "O Rappa", "Metallica"],
@@ -23,7 +23,24 @@ matriz_artistas = [
     ["Iago Gabriel", "Michael Jackson", "Sabrina Carpenter", "Eminem", "Evanescence", "Knocked Loose",
      "Arctic Monkeys", "Gorillaz", "BABYMETAL", "LiSA", "Haruka Tomatsu", "ASCA",
      "Necry Talkie", "Yoasobi", "Morning Musume", "MYTH & ROID"],
-    ["Victor Freire", "Manoel Gomes", "Kanye West", "Childish Gambino"]
+    ["Victor Freire", "Manoel Gomes", "Kanye West", "Childish Gambino"],
+    ["Pedro Henrique Vieira Carvalho", "Phil Anselmo" , "Charlie Brown Jr", "Sepultura"],
+    ["Felipe Chiaramonte De Souza ", "Mc pipoquinha", "Os Barões da pisadinha", "Marília Mendonça", "Mc Dalete"],
+    ["Victor Hugo brahim affonso ", "Michael Jackson", "Pablo citar", "oruam"],
+    ["Murilo Pericini", "Vin diesel", "the rock", "Paul walker"],
+    ["Leonardo Aguiar", "Jorge e Matheus", "Charles Do Bronxs", "Neymar"],
+    ["giovanna da guarda lopes", "selena gomes", "caio castro", "sabrina carpenter"],
+    ["Tiago Konishi", "Cristiano Ronaldo", "Messi", "Neymar"],
+    ["Enzo Takaku Gonçalves", "Guri", "Zero", "Duzz"],
+    ["Maria Fernanda", "Rosa de saron", "henrique e juliano", "chase atlantic"],
+    ["Sergio Rodrigues Zuicker", "Cristiano Ronaldo", "Abel Ferreira", "Jayson Tatum"],
+    ["Vinicius Pedro Menezes", "Mano Brown", "Djonga", "Yago Oproprio"],
+    ["Yohan", "Damon Albarn", "bbno$", "Chris Christodoulou"],
+    ["João Bosco Adão da Silva André", "Alee", "Travis Scott", "Kanye West"],
+    ["Miguel Felizardo dos Reis", "Travis scott", "A$AP Rocky", "pop smoke"],
+    ["Murilo Santos Teixeira", "Drake", "Eminem", "50cent"],
+    ["Gabriel Roncon", "Alee", "WS da igrejinha", "DJ Arana", "The Weeknd"],
+    ["Otávio Sá", "Mc Paiva", "Mc IG", "Cbjr"]
 ]
 
 lista_pesquisa = []
@@ -33,30 +50,36 @@ for linha in matriz_artistas:
     for artista in artistas:
         lista_pesquisa.append((pessoa, artista))
 
+# Cria uma tabela com 2 colunas                    0           1
 df_long = pd.DataFrame(lista_pesquisa, columns=["Pessoa", "Artistas"])
 
+# cria um grafo vazio
+Grafo = nx.Graph()
 
-G = nx.Graph()
-pessoas = list(set(df_long["Pessoa"]))
-artistas = list(set(df_long["Artistas"]))
+pessoas = list(set(df_long["Pessoa"])) # cria uma lista com o nome das pessoas
+artistas = list(set(df_long["Artistas"]))# cria uma lista com o nome dos artistas
 
-G.add_nodes_from(pessoas, bipartite=0)
-G.add_nodes_from(artistas, bipartite=1)
+# Adiciona nós no grafos
+Grafo.add_nodes_from(pessoas, bipartite=0)  # nó de pessoa
+Grafo.add_nodes_from(artistas, bipartite=1) # nó de coluna
 
-for _, row in df_long.iterrows():
-    G.add_edge(row["Pessoa"], row["Artistas"])
+# Cria uma aresta que liga pessoa aos artistas
+for aresta, row in df_long.iterrows():
+    Grafo.add_edge(row["Pessoa"], row["Artistas"])
 
+# Calcula a popularidade            quantidade      dicionario -> {Artista : Qtd}
 popularidade = df_long["Artistas"].value_counts().to_dict()
 
-
-pos = nx.spring_layout(G, seed=42, k=0.7)
-
-
-node_sizes = [500 if node in pessoas else 300 + popularidade.get(node, 1) * 100 for node in G.nodes()]
+#calcula a posição de cada nó
+pos = nx.spring_layout(Grafo, seed=42, k=1.2)
 
 
-edge_colors = []
-for u, v in G.edges():
+tamanho_no = [600 if node in pessoas else 200 + popularidade.get(node, 1) * 100 for node in G.nodes()]
+
+
+cor_arestas = []
+# Um nó de uma ponta e o da outra ponta da mesma aresta(u e v)
+for u, v in Grafo.edges():
     artista = v if v in popularidade else u
     pop = popularidade.get(artista, 1)
     if pop >= 5:
@@ -66,17 +89,17 @@ for u, v in G.edges():
     else:
         edge_colors.append("gray")
 
-
+# Define o tamanho da figura
 plt.figure(figsize=(20, 14))
-nx.draw_networkx_nodes(G, pos, nodelist=pessoas, node_color='skyblue', node_size=600, label='Pessoas')
-nx.draw_networkx_nodes(G, pos, nodelist=artistas,
-                       node_color='lightgreen',
-                       node_size=[node_sizes[list(G.nodes()).index(n)] for n in artistas],
-                       label='Artistas')
-nx.draw_networkx_edges(G, pos, edge_color=edge_colors)
-nx.draw_networkx_labels(G, pos, font_size=8)
+#Desenho dos nós
+nx.draw_networkx_nodes(Grafo, pos, nodelist=pessoas, node_color='skyblue', node_size=700, label='Pessoas')
+nx.draw_networkx_nodes(Grafo, pos, nodelist=artistas,node_color='lightgreen', node_size=[tamanho_no[list(G.nodes()).index(n)] for n in artistas], label='Artistas')
+#Desenho das arestas
+nx.draw_networkx_edges(Grafo, pos, edge_color=edge_colors)
+#fonte dos nós
+nx.draw_networkx_labels(Grafo, pos, font_size=10)
 
-plt.title("Grafo Bipartido com Popularidade dos Artistas", fontsize=18)
+plt.title("Grafo Bipartido com Popularidade dos Artistas", fontsize=20)
 plt.axis('off')
 plt.tight_layout()
 plt.show()
